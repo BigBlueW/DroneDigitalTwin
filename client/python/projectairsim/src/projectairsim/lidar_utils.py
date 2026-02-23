@@ -1,5 +1,6 @@
 from argparse import ArgumentError
 import multiprocessing as mp
+import time
 
 import numpy as np
 import open3d as o3d
@@ -24,8 +25,8 @@ class LidarDisplay:
     class SetViewBoundsRequest:
         """Class for requesting the display loop recalculate the view bounds"""
 
-        def __init__(self):
-            pass
+        def __init__(self, view_bounds):
+            self.view_bounds = view_bounds
 
     class ViewChangeRequest:
         """Class for making a view change request to the display loop"""
@@ -96,7 +97,7 @@ class LidarDisplay:
         if (view == self.VIEW_CUSTOM) and (
             not lookat_xyz or not view_front or not view_up
         ):
-            raise ArgumentError(
+            raise ValueError(
                 "LidarDisplay: View is VIEW_CUSTOM but one or more of lookat_xyz,"
                 " view_front, or view_up arguments are missing"
             )
@@ -116,7 +117,7 @@ class LidarDisplay:
                 self.PLASMA_PALLETE.shape[0],
             )
         else:
-            raise ArgumentError("LidarDisplay: Invalid color_intensity_range")
+            raise ValueError("LidarDisplay: Invalid color_intensity_range")
 
     def set_view_preset(self, view: int, lookat_xyz=None):
         if view == self.VIEW_TOPDOWN:
@@ -138,11 +139,11 @@ class LidarDisplay:
             self.lookat_xyz = [0.0, 0.0, 5.0] if not lookat_xyz else lookat_xyz
             self.view = view
         elif view == self.VIEW_CUSTOM:
-            raise ArgumentError(
+            raise ValueError(
                 "VIEW_CUSTOM is not valid here--call set_view_custom() instead"
             )
         else:
-            raise ArgumentError(f"Unrecognized preset view ID {view}")
+            raise ValueError(f"Unrecognized preset view ID {view}")
 
         if self.running:
             self.control_q.put(
@@ -366,13 +367,22 @@ class LidarDisplay:
                     self.set_view()
 
                 # Do Open3D processing
-                self.o3d_vis.poll_events()
-                self.o3d_vis.update_renderer()
+                if self.window_created:
+                    # check if window is still open
+                    if not self.o3d_vis.poll_events():
+                        self.running = False
+                        break
+                    self.o3d_vis.update_renderer()
+
+                # Cap frame rate to reduce CPU usage and avoid issues with DWM/WGL on Windows
+                time.sleep(0.01)
 
         except KeyboardInterrupt:
             pass  # Just exit normally
 
         finally:
+            if self.window_created:
+                self.o3d_vis.destroy_window()
             self.window_created = False
 
     def receive(self, lidar_data):
