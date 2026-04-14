@@ -11,21 +11,22 @@ REM =====================================================
 REM Check Visual Studio environment
 REM =====================================================
 
-if "%VisualStudioVersion%"=="16.0" goto ver_ok
-if "%VisualStudioVersion%"=="17.0" goto ver_ok
-
-echo:
-echo You need to run this command from x64 Native Tools Command Prompt for VS 2019 or VS 2022.
-goto :buildfailed_nomsg
+REM if "%VisualStudioVersion%"=="16.0" goto ver_ok
+REM if "%VisualStudioVersion%"=="17.0" goto ver_ok
+REM 
+REM echo:
+REM echo You need to run this command from x64 Native Tools Command Prompt for VS 2019 or VS 2022.
+REM goto :buildfailed_nomsg
+:ver_ok
 
 :ver_ok
 
-where /q nmake
-if errorlevel 1 (
-  echo:
-  echo nmake not found.
-  goto :buildfailed_nomsg
-)
+REM where /q nmake
+REM if errorlevel 1 (
+REM   echo:
+REM   echo nmake not found.
+REM   goto :buildfailed_nomsg
+REM )
 
 REM =====================================================
 REM Unreal Engine detection (OPTIONAL)
@@ -67,7 +68,7 @@ REM =====================================================
 if "%UE_MINOR%"=="2" (
   set MSVC_VER=14.37
 ) else if "%UE_MINOR%"=="7" (
-  set MSVC_VER=14.39
+  set MSVC_VER=14.44
 ) else (
   echo:
   echo Unsupported Unreal Engine version 5.%UE_MINOR%
@@ -93,7 +94,7 @@ REM =====================================================
 
 echo Using MSVC toolset version: %MSVC_VER%
 
-call "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvarsall.bat" x64 -vcvars_ver=%MSVC_VER%
+call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsall.bat" x64 -vcvars_ver=%MSVC_VER%
 if errorlevel 1 (
   echo:
   echo [WARNING] Failed to initialize MSVC %MSVC_VER%
