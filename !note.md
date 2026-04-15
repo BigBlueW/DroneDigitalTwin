@@ -4,7 +4,17 @@ This document serves as a development guide for the **Drone Swarm & AI** project
 
 ## 1. Environment & Setup
 
-### Create and Activate Virtual Environment
+### Automated Setup (Recommended)
+Run the one-click setup script from the repository root. It will install all prerequisites, create the Python virtual environment, and build the project:
+```powershell
+Set-ExecutionPolicy Bypass -Scope Process -Force
+.\setup_windows.ps1
+```
+
+### Manual Setup
+If you prefer to set up manually, or the script has already been run and you just need to activate the environment:
+
+#### Create and Activate Virtual Environment
 If you are setting this up for the first time:
 ```powershell
 # 1. Create venv
@@ -41,6 +51,12 @@ Before starting complex development, ensure the toolchain is working.
 1. **Unreal**: Open `Blocks.uproject` and press **Play**.
 2. **Terminal**: Run these test scripts from `client/python/example_user_scripts/`:
 
+```powershell
+.\venv\Scripts\activate
+
+cd client/python/example_user_scripts/
+```
+
 **Basic Flight Test**:
 ```powershell
 python hello_drone.py
@@ -50,6 +66,8 @@ python hello_drone.py
 ```powershell
 python keyboard_control.py
 ```
+
+**Note**: Always stop the python script before stopping the unreal project.
 
 ---
 
