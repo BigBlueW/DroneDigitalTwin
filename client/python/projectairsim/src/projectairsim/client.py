@@ -57,28 +57,34 @@ class ProjectAirSimClient:
         #       of on-going, long-running methods
         self.socket_services = pynng.Req0(
             recv_timeout=300000,  # Timeout after 5 minutes if no REP
-            send_timeout=1000,  # Timeout after 1 second if send fails
-            resend_time=-1,  # Disable retries
+            send_timeout=5000,   # Increase send timeout to 5 seconds
+            resend_time=5000,     # Enable retries (5 seconds)
         )
         self.request_id = self.request_id_generator()
-        if "win" in platform:
-            # todo check linux API for socket.set_int_option()
-            self.socket_topics.dial(
-                f"tcp://{self.address}:{self.port_topics}".encode(), block=True
-            )
-            self.socket_services.dial(
-                f"tcp://{self.address}:{self.port_services}".encode(), block=True
-            )
-        if "linux" in platform:
-            self.socket_topics.dial(
-                address=f"tcp://{self.address}:{self.port_topics}", block=True
-            )
-            self.socket_services.dial(
-                address=f"tcp://{self.address}:{self.port_services}", block=True
-            )
-        projectairsim_log().info("Connection opened.")
+        
+        # Robust connection: Retry dial a few times in case the server is still booting
+        max_attempts = 5
+        for attempt in range(1, max_attempts + 1):
+            try:
+                if "win" in platform:
+                    self.socket_topics.dial(f"tcp://{self.address}:{self.port_topics}".encode(), block=True)
+                    self.socket_services.dial(f"tcp://{self.address}:{self.port_services}".encode(), block=True)
+                else:
+                    self.socket_topics.dial(address=f"tcp://{self.address}:{self.port_topics}", block=True)
+                    self.socket_services.dial(address=f"tcp://{self.address}:{self.port_services}", block=True)
+                
+                projectairsim_log().info("Connection opened.")
+                break
+            except pynng.exceptions.NNGException as e:
+                if attempt == max_attempts:
+                    projectairsim_log().error(f"Failed to connect after {max_attempts} attempts.")
+                    raise e
+                projectairsim_log().warning(f"Connection attempt {attempt}/{max_attempts} failed ({e}). Retrying in 2s...")
+                time.sleep(2)
+
         self.state = True
         self.recv_topic_thread = threading.Thread(target=self.__recv_topic)
+        self.recv_topic_thread.daemon = True # Ensure thread doesn't block exit
         self.recv_topic_thread.start()
         projectairsim_log().info("Started the pub-sub topic receiving thread.")
 

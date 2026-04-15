@@ -262,11 +262,37 @@ if ($ueRoot -and (Test-Path $ueRoot)) {
 Write-Banner "Step 5/6: Python Virtual Environment"
 
 if (Test-Path $VENV_DIR) {
-    Write-Hint "Virtual environment already exists at $VENV_DIR"
+    # Validate if venv is broken (often happens if folder is moved/renamed)
+    $isBroken = $false
+    $activateBat = Join-Path $VENV_DIR "Scripts\activate.bat"
+    if (Test-Path $activateBat) {
+        $batContent = Get-Content $activateBat
+        # Check if the internal VIRTUAL_ENV path matches current location
+        if ($batContent -match 'set "VIRTUAL_ENV=(.*)"') {
+            $venvPathInBat = $Matches[1].Trim()
+            # Resolve paths for comparison
+            $actualPath = (Resolve-Path $VENV_DIR).Path
+            if ($venvPathInBat -ne $actualPath) {
+                Write-Warn "Detected broken virtual environment (moved from $venvPathInBat to $actualPath)."
+                $isBroken = $true
+            }
+        }
+    } else {
+        $isBroken = $true
+    }
+
+    if ($isBroken) {
+        Write-Step "5a" "Re-creating broken virtual environment..."
+        Remove-Item -Recurse -Force $VENV_DIR
+        & $python39Exe -m venv $VENV_DIR
+        Write-OK "Virtual environment re-created."
+    } else {
+        Write-Hint "Virtual environment already exists and is healthy at: $VENV_DIR"
+    }
 } else {
-    Write-Step "5a" "Creating venv using Python 3.9 ($python39Exe)..."
+    Write-Step "5a" "Creating virtual environment..."
     & $python39Exe -m venv $VENV_DIR
-    Write-OK "venv created."
+    Write-OK "Virtual environment created at: $VENV_DIR"
 }
 
 # Activation

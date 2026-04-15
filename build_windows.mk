@@ -59,7 +59,8 @@ all_no_test: simlibs_debug simlibs_release package_simlibs package_plugin packag
 CMAKE_BUILD_DIR = build\win64
 CMAKE_CMD = cmake -G "Ninja" \
 				  -DCMAKE_C_COMPILER=cl.exe \
-				  -DCMAKE_CXX_COMPILER=cl.exe
+				  -DCMAKE_CXX_COMPILER=cl.exe \
+				  -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 CMAKE_DBG_BUILD_CMD = cmake --build $(CMAKE_BUILD_DIR)\Debug
 CMAKE_REL_BUILD_CMD = cmake --build $(CMAKE_BUILD_DIR)\Release
 
