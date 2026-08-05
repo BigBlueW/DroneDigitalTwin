@@ -5,7 +5,8 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$SCRIPT_DIR"
+# run_gui.sh lives at <root>/client/python/gui_demo/, climb up 4 levels to repo root
+PROJECT_ROOT="$SCRIPT_DIR/../../.."
 
 # Default DISPLAY if not set (for headless X11 / Chrome Remote Desktop / WSL2)
 if [ -z "$DISPLAY" ]; then
@@ -26,6 +27,6 @@ echo "Project Root: $PROJECT_ROOT"
 echo "Python Executable: $VENV_PYTHON"
 echo "X11 DISPLAY: $DISPLAY"
 
-export PYTHONPATH="$PROJECT_ROOT:$PYTHONPATH"
+export PYTHONPATH="$PROJECT_ROOT:$SCRIPT_DIR:$PYTHONPATH"
 
-exec "$VENV_PYTHON" "$PROJECT_ROOT/gui_control_panel.py" "$@"
+exec "$VENV_PYTHON" "$SCRIPT_DIR/gui_control_panel.py" "$@"

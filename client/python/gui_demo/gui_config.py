@@ -38,8 +38,9 @@ MANUAL_VENV_PYTHON        = ""  # Manual path to Python virtual environment (def
 if MANUAL_PROJECT_ROOT and MANUAL_PROJECT_ROOT.strip():
     PROJECT_ROOT = Path(MANUAL_PROJECT_ROOT.strip())
 else:
-    # Default: Dynamically resolve DroneDigitalTwin root from gui_config.py location
-    PROJECT_ROOT = Path(__file__).resolve().parent
+    # Default: Dynamically resolve DroneDigitalTwin root from gui_config.py location.
+    # gui_config.py lives at <root>/client/python/gui_demo/, so climb up 4 levels.
+    PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 
 if MANUAL_VENV_PYTHON and MANUAL_VENV_PYTHON.strip():
     VENV_PYTHON = Path(MANUAL_VENV_PYTHON.strip())
@@ -50,12 +51,13 @@ else:
         VENV_PYTHON = Path(sys.executable)
 
 # Script and output directories
+GUI_DEMO_DIR = PROJECT_ROOT / "client" / "python" / "gui_demo"
 EXAMPLE_SCRIPTS_DIR = PROJECT_ROOT / "client" / "python" / "example_user_scripts"
 HALCYON_DEMO_DIR = PROJECT_ROOT / "client" / "python" / "halcyon_demo"
 DEFAULT_VIDEO_DIR = str(PROJECT_ROOT / "video") + os.sep
 
 # Helper script path for sudo keyboard control
-FLY_KEYBOARD_SH = PROJECT_ROOT / "fly_keyboard.sh"
+FLY_KEYBOARD_SH = GUI_DEMO_DIR / "fly_keyboard.sh"
 
 
 # =====================================================================

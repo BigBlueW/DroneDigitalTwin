@@ -28,6 +28,7 @@ ctk.set_default_color_theme("blue")
 from gui_config import (
     PROJECT_ROOT,
     VENV_PYTHON,
+    GUI_DEMO_DIR,
     EXAMPLE_SCRIPTS_DIR,
     HALCYON_DEMO_DIR,
     DEFAULT_VIDEO_DIR,
@@ -168,9 +169,9 @@ class DroneControlGUI(ctk.CTk):
         """Auto-launch telemetry dashboard window asynchronously if not already open."""
         if hasattr(self, "dashboard_process") and self.dashboard_process and self.dashboard_process.poll() is None:
             return
-        cmd = [str(VENV_PYTHON), "gui_dashboard.py"]
+        cmd = [str(VENV_PYTHON), str(GUI_DEMO_DIR / "gui_dashboard.py")]
         try:
-            self.dashboard_process = subprocess.Popen(cmd, cwd=PROJECT_ROOT)
+            self.dashboard_process = subprocess.Popen(cmd, cwd=GUI_DEMO_DIR)
             self.log("[SYSTEM] Auto-launched Telemetry Dashboard window.\n")
         except Exception as e:
             self.log(f"[ERROR] Failed to auto-launch Telemetry Dashboard: {e}\n")

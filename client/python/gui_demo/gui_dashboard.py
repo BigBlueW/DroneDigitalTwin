@@ -14,9 +14,9 @@ import pynng
 from pathlib import Path
 from sys import platform
 
-# Add projectairsim python package to path
-PROJECT_ROOT = Path(__file__).resolve().parent
-sys.path.insert(0, str(PROJECT_ROOT / "client" / "python"))
+# Add projectairsim python package to path (gui_demo -> python -> client/python)
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
 SCENE_ID = "SceneBasicDrone"
 DRONE_NAME = "Drone1"
