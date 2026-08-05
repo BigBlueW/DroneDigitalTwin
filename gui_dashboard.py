@@ -220,7 +220,7 @@ class DashboardApp(ctk.CTk):
                 kinematics = self.client.get_ground_truth_kinematics()
                 if kinematics and "pose" in kinematics:
                     pos = kinematics["pose"]["position"]
-                    vel = kinematics.get("linear_velocity", {"x": 0, "y": 0, "z": 0})
+                    vel = kinematics["twist"].get("linear", {"x": 0, "y": 0, "z": 0})
                     orient = kinematics["pose"].get("orientation", {"w": 1, "x": 0, "y": 0, "z": 0})
 
                     # Altitude: -Z (NED frame: Z is down, so altitude is positive up)
